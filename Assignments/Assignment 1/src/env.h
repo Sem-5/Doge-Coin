@@ -10,7 +10,9 @@
 class Simulator
 {
 	vector<User> users; 			// need to define class User
-	priority_queue <Event, vector<Event>, greater<Event> > event_queue;		// need to define Event class with its comparator
+	priority_queue <Event, vector<Event>, greater<Event> > event_queue;		// need to define Event class with its comparator	
+																			// problem: how to cancel events ahead in time? 
+																			// should we instead use map from time to list of events
 	vector<vector<int> > light_delay;
 	int blockID, currID;
 
