@@ -8,15 +8,23 @@
 #include "block.h"
 #include "txn.h"
 
-class Event 
-{
-	int event_func;
-	double time;
+struct Event 
+{	
+	int event_func;				// 4 functions, 0,1,2,3 represent values, check env.h for details
+	double time;				// time of initiating event
 	Transaction transaction;
 	Block block;
-	User user;
-	User parent_node;		// to not forward to sender again
+	int userID;
+	int p_userID;				// sender userID to not forward to sender again
 
-public:
-	Event(int func, double time, Transaction txn, Block block, User user, User parent_node);
+	inline Event(int func, double time, Transaction txn, Block block, int userID, int p_nodeID)
+	: event_func(func), time(time), transaction(txn), block(block), userID(userID), p_userID(p_nodeID) 
+	{
+	}
+
+	// comparator for priority queue
+	bool operator>(const Event& x, const Event& y)
+	{
+		return x.time > y.time;
+	}
 };
