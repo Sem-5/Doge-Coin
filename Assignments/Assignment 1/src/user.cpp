@@ -9,7 +9,7 @@ bool User::is_valid_txn(Transaction txn){
 	if(txn_ptrs.find(txn.txnID) == txn_ptrs.end()) 
 	{
 
-		txn_pool[txn.txnID] = txn;
+		txn_pool.insert({txn.txnID, txn});
 
 		// update lru
 		if(txn_enc.size() == txn_max_sz)
@@ -42,10 +42,10 @@ bool User::is_valid_block(Block block, bool *long_change){
 	if(blockchain.find(block.blockID) == blockchain.end()) 
 	{	
 		// find balance of each user in that path upto parent block
-		vector<int> new_balance = update_balance();
+		std::vector<int> new_balance = update_balance(block);
 
 		// check total money sent by each user
-		vector<int> spent(balance.size(), 0);
+		std::vector<int> spent(balance.size(), 0);
 		for(auto txn: block.txns)
 		{
 			if(txn.sendID != -1){		//coin base
@@ -57,9 +57,11 @@ bool User::is_valid_block(Block block, bool *long_change){
 		}
 
 		// reached here -> valid block, update blockchain and add this ID to parent block
-		blockchain[block.blockID] = block;
-		if(block.p_blockID != -1)
-			blockchain[block.p_blockID].add_child(block.blockID);
+		blockchain.insert({block.blockID, block});
+		if(block.p_blockID != -1){
+			auto itr = blockchain.find(block.p_blockID);
+			itr->second.add_child(block.blockID);
+		}
 
 		// update transaction pool, erase the transactions from the pool
 		for(auto txn: block.txns)
@@ -69,7 +71,7 @@ bool User::is_valid_block(Block block, bool *long_change){
 		}
 
 		// check if new added block has higher depth
-		if(block.depth > blockchain[curr_blkID].depth)
+		if(block.depth > blockchain.find(curr_blkID)->second.depth)
 		{
 			// update balance of each user based on new path
 			balance = new_balance;
@@ -96,19 +98,19 @@ int User::common_ancestor(Block block)
 	if(block.p_blockID == curr_blkID)
 		return curr_blkID;
 
-	vector<int> path1, path2;
+	std::vector<int> path1, path2;
 	int curr_id = block.blockID;
 	while(curr_id != -1)
 	{
 		path1.push_back(curr_id);
-		curr_id = blockchain[curr_id].p_blockID;
+		curr_id = blockchain.find(curr_id)->second.p_blockID;
 	}
 
 	curr_id = curr_blkID;
 	while(curr_id != -1)
 	{
 		path2.push_back(curr_id);
-		curr_id = blockchain[curr_id].p_blockID;
+		curr_id = blockchain.find(curr_id)->second.p_blockID;
 	}
 
 	int i = path1.size() - 1;
@@ -122,49 +124,50 @@ int User::common_ancestor(Block block)
 	return path1[i+1];
 }
 
-vector<int> User::update_balance(Block block)
+std::vector<int> User::update_balance(Block block)
 {
 	// returns balance upto parent block of input block
 
-	vector<int> new_balance = balance;
+	std::vector<int> new_balance = balance;
 	int ancestorID = common_ancestor(block);
 	int curr_id = curr_blkID;
 	while(curr_id != ancestorID){
-		for(auto txn: blockchain[curr_id].txns){
+		for(auto txn: blockchain.find(curr_id)->second.txns){
 			new_balance[txn.sendID] += txn.amount;
 			new_balance[txn.recvID] -= txn.amount;
 		}
-		curr_id = blockchain[curr_id].p_blockID;
+		curr_id = blockchain.find(curr_id)->second.p_blockID;
 	}
 
 	curr_id = block.p_blockID;
 	while(curr_id != ancestorID){
-		for(auto txn: blockchain[curr_id].txns){
+		for(auto txn: blockchain.find(curr_id)->second.txns){
 			new_balance[txn.sendID] -= txn.amount;
 			new_balance[txn.recvID] += txn.amount;
 		}
-		curr_id = blockchain[curr_id].p_blockID;
+		curr_id = blockchain.find(curr_id)->second.p_blockID;
 	}
 
 	return new_balance;
 
 }
 
-vector<Transaction> User::choose_transaction()
+std::vector<Transaction> User::choose_txns()
 {
 	// picks random min(999, txn_pool.size()) elements for new block generation
 	// updates transaction pool appropriately
+	static std::random_device rd;
 
-	vector<int> keys;
+	std::vector<int> keys;
 	for(auto kv: txn_pool)
 		keys.push_back(kv.first);
 
-	mt19937 gen(rd());
+	std::mt19937 gen(rd());
 	shuffle(keys.begin(), keys.end(), gen);
 
-	vector<Transaction> txns;
-	for(int i=0; i<min(999, keys.size()); i++)
-		txns.push_back(txn_pool[keys[i]]);
+	std::vector<Transaction> txns;
+	for(int i=0; i<std::min(999, (int)keys.size()); i++)
+		txns.push_back(txn_pool.find(keys[i])->second);
 
 	return txns;
 }

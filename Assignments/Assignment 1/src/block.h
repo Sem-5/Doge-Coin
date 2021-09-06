@@ -18,7 +18,7 @@ public:
 	int userID;
 
 	inline Block(double time, double recv_time, std::vector<Transaction> txns, int blockID, int p_blockID, int depth, int userID)
-	: timestamp(time), recv_time(recv_time), txns(txns), blockID(blockID), p_blockID(p_blockID), depth(depth), userID(userID)
+	: timestamp(time), recv_time(recv_time), txns(txns), blockID(blockID), p_blockID(p_blockID), depth(depth), userID(userID), c_blockID(std::vector<int>())
 	{
 	}
 

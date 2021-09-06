@@ -8,9 +8,10 @@
 #include <iterator>
 #include <random>
 #include <list>
+#include <cmath>
 
-#include "block.h"
 #include "txn.h"
+#include "block.h"
 
 class User 
 {
@@ -31,11 +32,12 @@ public:
 	int txn_max_sz;									// maximum size of transaction queue
 	std::unordered_map<int, std::list<int>::iterator> txn_ptrs;	// ptr to txnID in list for O(1) access	
 
-	inline User(int txn_time, int blk_time, int n, Block genesis, bool fast) 
-	: txn_time(txn_time), blk_time(blk_time), txn_max_sz(2000), fast(fast), curr_blkID(0)
+	inline User(double txn_time, double blk_time, int n, Block genesis, bool fast) 
+	: txn_time(txn_time), blk_time(blk_time), txn_max_sz(2000), fast(fast), curr_blkID(genesis.blockID)
 	{
 		// add genesis block
-		blockchain[genesis.blockID] = genesis;
+		int genesisID = genesis.blockID;
+		blockchain.insert({genesisID, genesis});
 
 		// initialize all users balance to 0
 		balance = std::vector<int> (n, 0);
@@ -49,7 +51,7 @@ public:
 	bool is_valid_block(Block block, bool *long_change);
 	std::vector<Transaction> choose_txns();
 	std::vector<int> update_balance(Block block);
-	int common_ancestor(int blockID);
+	int common_ancestor(Block block);
 };
 
 #endif

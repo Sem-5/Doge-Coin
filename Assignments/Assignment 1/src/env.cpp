@@ -42,6 +42,7 @@ void Simulator::init_blocks()
 	for(int i = 0; i<n; i++){
 		// generate block generation time (PoW)
 		double t = exponential(users[i].blk_time);
+		std::cout<<users[i].blk_time<<std::endl;
 
 		// add coinbase transaction
 		Transaction coinbase(txnID, i, -1, 50.0);
@@ -50,12 +51,14 @@ void Simulator::init_blocks()
 
 		// Create block to be generated and add in event
 		// note that here BlockID and TxnID for coinbase is just a temporary value
-		Block blk(0, t, txns, blockID, users[i].curr_blkID, users[i].blockchain[users[i].curr_blkID].depth + 1, i);
+		Block blk(0, t, txns, blockID, users[i].curr_blkID, users[i].blockchain.find(users[i].curr_blkID)->second.depth + 1, i);
 		Event e(2, t, 
 				Transaction(-1,-1,-1,-1), 
 				blk, 
 				i, i);
 		event_queue.push(e);
+		std::cout<<"Creating Event:\n";
+		std::cout<<"Generate Block\n Time: "<<t<<"\nUser ID: "<<i<<std::endl<<std::endl;
 
 	}
 }
@@ -75,10 +78,13 @@ void Simulator::init_txns()
 				Block(-1,-1, std::vector<Transaction>(),-1,-1,-1,-1), 
 				i, i);
 		event_queue.push(e);
+
+		std::cout<<"Creating Event:\n";
+		std::cout<<"Generate Transaction\n Time: "<<t<<"\nUser ID: "<<i<<std::endl<<std::endl;
 	}
 }
 
-std::vector<bool> Simulator::fast_list(int n, double z)
+std::vector<bool> Simulator::fast_list(double z)
 {
 	static std::random_device rd;
 
@@ -118,6 +124,7 @@ void Simulator::simulate(double end_time)
 	while(cur_time <= end_time && event_queue.size() > 0)
 	{
 		Event e = event_queue.top();
+
 		event_queue.pop();
 		cur_time = e.time;
 
@@ -243,7 +250,7 @@ void Simulator::generate_block(Event e)
 	double t = exponential(users[e.userID].blk_time);
 
 	// create block and add in queue
-	Block blk(cur_time, t+cur_time, txns, blockID, users[e.userID].curr_blkID, users[e.userID].blockchain[users[e.userID].curr_blkID].depth + 1, e.userID);
+	Block blk(cur_time, t+cur_time, txns, blockID, users[e.userID].curr_blkID, users[e.userID].blockchain.find(users[e.userID].curr_blkID)->second.depth + 1, e.userID);
 	Event new_event(2, t+cur_time, 
 					Transaction(-1,-1,-1,-1), 
 					blk, 
@@ -275,7 +282,7 @@ void Simulator::receive_block(Event e)
 		double t = exponential(users[e.userID].blk_time);
 
 		// create block and add in queue
-		Block blk(cur_time, t+cur_time, txns, blockID, users[e.userID].curr_blkID, users[e.userID].blockchain[users[e.userID].curr_blkID].depth + 1, e.userID);
+		Block blk(cur_time, t+cur_time, txns, blockID, users[e.userID].curr_blkID, users[e.userID].blockchain.find(users[e.userID].curr_blkID)->second.depth + 1, e.userID);
 		Event new_event(2, t+cur_time, 
 						Transaction(-1,-1,-1,-1), 
 						blk, 

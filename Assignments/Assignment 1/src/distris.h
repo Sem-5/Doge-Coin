@@ -5,7 +5,7 @@
 
 // Just contains some distribution functions needed for implementation
 
-double unif_real(int a, int b)
+inline double unif_real(int a, int b)
 {
 	static std::random_device rd;
 	std::mt19937 gen(rd());
@@ -13,7 +13,7 @@ double unif_real(int a, int b)
 	return uni(gen);
 }
 
-int unif_int(int a, int b)
+inline int unif_int(int a, int b)
 {
 	static std::random_device rd;
 	std::mt19937 gen(rd());
@@ -22,7 +22,7 @@ int unif_int(int a, int b)
 }
 
 
-int poisson(double mean)
+inline int poisson(double mean)
 {
 	static std::random_device rd;
 	std::mt19937 gen(rd());
@@ -30,7 +30,7 @@ int poisson(double mean)
 	return pois(gen);
 }
 
-int exponential(double mean)
+inline double exponential(double mean)
 {
 	static std::random_device rd;
 	std::mt19937 gen(rd());

@@ -28,7 +28,7 @@ public:
 
 		// initialize n users each having genesis block
 		Block genesis(0, 0, std::vector<Transaction>(), 0, -1, 0, -1);
-		std::vector<bool> fast = fast_list(n,z);
+		std::vector<bool> fast = fast_list(z);
 		blockID++;
 
 		for(int i = 0; i < n; i++){
@@ -55,7 +55,7 @@ public:
 		init_txns();
 
 		// start simulating
-		simulate(end_time);
+		// simulate(end_time);
 	}
 
 	// controlling simulation
@@ -66,7 +66,7 @@ public:
 	void init_blocks();
 	void init_txns();
 	double get_latency(int i, int j, double size);
-	std::vector<bool> fast_list(int n, double z);
+	std::vector<bool> fast_list(double z);
 
 	// The 4 events, ordered 0,1,2,3 in this order
 	void generate_transaction(Event e);
