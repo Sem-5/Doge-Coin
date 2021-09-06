@@ -27,7 +27,7 @@ public:
 	}
 
 	// comparator for priority queue
-	bool operator >(Event const &x)
+	bool operator >(Event const &x) const
 	{
 		return time > x.time;
 	}

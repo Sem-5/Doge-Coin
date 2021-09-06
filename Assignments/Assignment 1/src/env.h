@@ -1,7 +1,6 @@
 #ifndef env_h
 #define env_h
 
-#include <iostream>
 #include <queue>
 #include <vector>
 #include <cmath>
