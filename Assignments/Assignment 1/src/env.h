@@ -1,7 +1,10 @@
+#ifndef env_h
+#define env_h
+
 #include <iostream>
 #include <queue>
 #include <vector>
-#include <math>
+#include <cmath>
 
 #include "user.h"
 #include "event.h"
@@ -10,23 +13,23 @@
 
 class Simulator
 {
-	vector<User> users; 													
+	std::vector<User> users; 													
 	int n;			
-	priority_queue <Event, vector<Event>, greater<Event> > event_queue;		// priority queue which maintains list of events to be done
+	std::priority_queue <Event, std::vector<Event>, std::greater<Event> > event_queue;		// priority queue which maintains list of events to be done
 																			// problem: how to cancel events ahead in time? 
 																			// should we instead use map from time to list of events?
-	vector<vector<double> > light_delay;			// speed of light delay between pairs
+	std::vector<std::vector<double> > light_delay;			// speed of light delay between pairs
 	int blockID, txnID;
 	double cur_time;								// curr time in simulation
 
 public:
-	inline Simulator(int n, double z, vector<double> txn_means, vector<double> blk_means, double end_time) 
+	inline Simulator(int n, double z, std::vector<double> txn_means, std::vector<double> blk_means, double end_time) 
 	: blockID(0), txnID(0), cur_time(0.0), n(n)
 	{
 
 		// initialize n users each having genesis block
-		Block genesis(0, 0, vector<int>, 0, -1, 0);
-		vector<bool> fast = fast_list(n,z);
+		Block genesis(0, 0, std::vector<Transaction>(), 0, -1, 0, -1);
+		std::vector<bool> fast = fast_list(n,z);
 		blockID++;
 
 		for(int i = 0; i < n; i++){
@@ -35,7 +38,7 @@ public:
 		}
 
 		// sample uniformly from (10,500) to create speed of light delay matrix
-		light_delay = vector<vector<double> > (n, vector<double>(n, 0.0))
+		light_delay = std::vector<std::vector<double> > (n, std::vector<double>(n, 0.0));
 		for(int i = 0; i < n; i++){
 			for(int j = 0; j < n; j++){
 				if(i==j)
@@ -63,8 +66,8 @@ public:
 	void set_network();
 	void init_blocks();
 	void init_txns();
-	double get_latency(int i, int j, int size);
-	vector<bool> fast_list(int n, double z);
+	double get_latency(int i, int j, double size);
+	std::vector<bool> fast_list(int n, double z);
 
 	// The 4 events, ordered 0,1,2,3 in this order
 	void generate_transaction(Event e);
@@ -72,3 +75,5 @@ public:
 	void generate_block(Event e);
 	void receive_block(Event e);
 };
+
+#endif

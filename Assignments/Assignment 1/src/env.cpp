@@ -5,11 +5,11 @@ void Simulator::set_network()
 	// Generates the random connected graph
 	// Sets user peers appropriately in user struct
 
-	static random_device rd;
+	static std::random_device rd;
 
 	double k = (log10(n)/n);
 
-	vector<int> arr(1,1);
+	std::vector<int> arr(1,1);
 	
 	// generate graph
 	for(int node=2; node<=n; node++)
@@ -20,7 +20,7 @@ void Simulator::set_network()
 			d = poisson(k*(node-1));
 
 		// picking d random values
-		mt19937 gen(rd());
+		std::mt19937 gen(rd());
 		shuffle(arr.begin(), arr.end(), gen);
 
 		// adding them to the peer list of the users
@@ -45,17 +45,18 @@ void Simulator::init_blocks()
 
 		// add coinbase transaction
 		Transaction coinbase(txnID, i, -1, 50.0);
-		vector<Transaction> txns;
+		std::vector<Transaction> txns;
 		txns.push_back(coinbase);
 
 		// Create block to be generated and add in event
-		Block blk(0, t, txns, blockID, users[i].curr_blkID, users[i].curr_blkID.depth + 1);
-		Event e(2, t, NULL, blk, i, i);
+		// note that here BlockID and TxnID for coinbase is just a temporary value
+		Block blk(0, t, txns, blockID, users[i].curr_blkID, users[i].blockchain[users[i].curr_blkID].depth + 1, i);
+		Event e(2, t, 
+				Transaction(-1,-1,-1,-1), 
+				blk, 
+				i, i);
 		event_queue.push(e);
 
-		// update unique ID's
-		blockID++;
-		txnID++;	
 	}
 }
 
@@ -69,18 +70,34 @@ void Simulator::init_txns()
 		double t = exponential(users[i].txn_time);
 
 		// schedule event to generate transaction at time t
-		Event e(0, t, NULL, NULL, i, i);
+		Event e(0, t, 
+				Transaction(-1,-1,-1,-1), 
+				Block(-1,-1, std::vector<Transaction>(),-1,-1,-1,-1), 
+				i, i);
 		event_queue.push(e);
 	}
 }
 
-vector<bool> Simulator::fast_list(int n, double z)
+std::vector<bool> Simulator::fast_list(int n, double z)
 {
-	// TO IMPLEMENT
-	// RETURNS A BOOL ARRAY WHERE n*z ELEMENTS ARE 0, AKA SLOW, REST ARE FAST
+	static std::random_device rd;
+
+	std::vector<int> arr;
+	for(int i = 0; i<n; i++)
+		arr.push_back(i);
+
+	std::mt19937 gen(rd());
+	shuffle(arr.begin(), arr.end(), gen);
+
+	int num_slow = n*z;
+	std::vector<bool> fast(n, true);
+	for(int i =0; i<num_slow; i++)
+		fast[arr[i]] = false;
+
+	return fast;
 }
 
-double Simulator::get_latency(int i, int j, int size)
+double Simulator::get_latency(int i, int j, double size)
 {
 	// size is in MB, latency returned is in ms
 	// Gives the latency when sender is i and receiver j
@@ -141,7 +158,10 @@ void Simulator::generate_transaction(Event e)
 			if(peer_id != e.p_userID)
 			{
 				double t = get_latency(e.userID, peer_id, 0.001);
-				Event new_event(1, t+cur_time, txn, NULL, peer_id, e.userID);
+				Event new_event(1, t+cur_time, 
+								txn, 
+								Block(-1,-1, std::vector<Transaction>(),-1,-1,-1,-1), 
+								peer_id, e.userID);
 				event_queue.push(new_event);
 			}
 		}
@@ -149,8 +169,11 @@ void Simulator::generate_transaction(Event e)
 
 	// schedule another event for next time transaction created
 	double t = exponential(users[e.userID].txn_time);
-	Event e(0, t, NULL, NULL, e.userID, e.userID);
-	event_queue.push(e);
+	Event new_event(0, t, 
+					Transaction(-1,-1,-1,-1), 
+					Block(-1,-1, std::vector<Transaction>(),-1,-1,-1,-1),
+					e.userID, e.userID);
+	event_queue.push(new_event);
 }
 
 void Simulator::receive_transaction(Event e)
@@ -166,7 +189,10 @@ void Simulator::receive_transaction(Event e)
 			if(peer_id != e.p_userID)	// forward to all except sender
 			{
 				double t = get_latency(e.userID, peer_id, 0.001);
-				Event new_event(1, t+cur_time, txn, NULL, peer_id, e.userID);
+				Event new_event(1, t+cur_time, 
+								e.transaction, 
+								Block(-1,-1, std::vector<Transaction>(),-1,-1,-1,-1), 
+								peer_id, e.userID);
 				event_queue.push(new_event);
 			}
 		}
@@ -175,13 +201,23 @@ void Simulator::receive_transaction(Event e)
 
 void Simulator::generate_block(Event e)
 {
-	// if this function appeared, means mining successful
+	// check if the block received at this instant is actually child of longest chain
+	// if not, ignore event
+	// put appropriate blockID and txnID inside block and update ID's
 	// update blockchain of user and lru using is_valid_block
 	// broadcast to all other users
 	// event e already has the block which was being mined
 	// here just forward to all peers and schedule new block for mining
 
-	bool is_valid = users[e.userID].is_valid_block(e.block);
+	if(e.block.p_blockID != users[e.userID].curr_blkID)
+		return;
+	e.block.blockID = blockID;
+	e.block.txns.back().txnID = txnID;
+	blockID++;
+	txnID++; 
+
+	bool long_change = false;
+	bool is_valid = users[e.userID].is_valid_block(e.block, &long_change);
 	if (is_valid)
 	{
 		for(int peer_id: users[e.userID].peers)
@@ -189,28 +225,30 @@ void Simulator::generate_block(Event e)
 			if(peer_id != e.p_userID)
 			{
 				double t = get_latency(e.userID, peer_id, e.block.txns.size() * 0.001);
-				Event new_event(3, t+cur_time, NULL, e.block, peer_id, e.userID);
+				Event new_event(3, t+cur_time,
+								 Transaction(-1,-1,-1,-1), 
+								 e.block, 
+								 peer_id, e.userID);
 				event_queue.push(new_event);
 			}
 		}
 	}
 
 	// choose set of transactions for block
-	vector<Transaction> txns = users[e.userID].choose_txns();
-	Transaction coinbase(txnID, i, -1, 50.0);
+	std::vector<Transaction> txns = users[e.userID].choose_txns();
+	Transaction coinbase(txnID, e.userID, -1, 50.0);
 	txns.push_back(coinbase);
 
 	// block creation time
 	double t = exponential(users[e.userID].blk_time);
 
 	// create block and add in queue
-	Block blk(cur_time, t+cur_time, txns, blockID, users[e.userID].curr_blkID, users[e.userID].curr_blkID.depth + 1);
-	Event e(2, t, NULL, blk, e.userID, e.userID);
-	event_queue.push(e);
-
-	// update unique id's
-	blockID++;
-	txnID++;
+	Block blk(cur_time, t+cur_time, txns, blockID, users[e.userID].curr_blkID, users[e.userID].blockchain[users[e.userID].curr_blkID].depth + 1, e.userID);
+	Event new_event(2, t+cur_time, 
+					Transaction(-1,-1,-1,-1), 
+					blk, 
+					e.userID, e.userID);
+	event_queue.push(new_event);
 }
 
 void Simulator::receive_block(Event e)
@@ -225,12 +263,24 @@ void Simulator::receive_block(Event e)
 	bool long_change = false;
 	bool is_valid = users[e.userID].is_valid_block(e.block, &long_change);
 
-	// long change was true, hence remove this nodes generate_block event in event queue
+	// long change was true, then we should start mining on a new block
 	if(long_change)
 	{
-		// NEED TO IMPLEMENT
-		// FIND TRANSACTION IN EVENT QUEUE AND CANCEL IT
-		// MIGHT NEED TO CHANGE EVENT QUEUE DATA STRUCTURE
+		// choose set of transactions for block
+		std::vector<Transaction> txns = users[e.userID].choose_txns();
+		Transaction coinbase(txnID, e.userID, -1, 50.0);
+		txns.push_back(coinbase);
+
+		// block creation time
+		double t = exponential(users[e.userID].blk_time);
+
+		// create block and add in queue
+		Block blk(cur_time, t+cur_time, txns, blockID, users[e.userID].curr_blkID, users[e.userID].blockchain[users[e.userID].curr_blkID].depth + 1, e.userID);
+		Event new_event(2, t+cur_time, 
+						Transaction(-1,-1,-1,-1), 
+						blk, 
+						e.userID, e.userID);
+		event_queue.push(new_event);
 	}
 
 	// if block is valid, share to all peers
@@ -241,7 +291,10 @@ void Simulator::receive_block(Event e)
 			if(peer_id != e.p_userID)
 			{
 				double t = get_latency(e.userID, peer_id, e.block.txns.size() * 0.001);
-				Event new_event(3, t+cur_time, NULL, recv_block, peer_id, e.userID);
+				Event new_event(3, t+cur_time, 
+								Transaction(-1,-1,-1,-1), 
+								recv_block, 
+								peer_id, e.userID);
 				event_queue.push(new_event);
 			}
 		}

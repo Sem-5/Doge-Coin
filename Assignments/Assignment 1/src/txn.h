@@ -1,8 +1,11 @@
+#ifndef txn_h
+#define txn_h
 // self explantory, struct for a transaction
 // recvID = -1 for coinbase
 
-struct Transaction 
+class Transaction 
 {
+public:
 	int txnID;
 	int sendID;
 	int recvID;
@@ -13,3 +16,5 @@ struct Transaction
 	{
 	}
 };
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef event_h
+#define event_h
+
 #include <iostream>
 #include <queue>
 #include <vector>
@@ -8,8 +11,9 @@
 #include "block.h"
 #include "txn.h"
 
-struct Event 
+class Event 
 {	
+public:
 	int event_func;				// 4 functions, 0,1,2,3 represent values, check env.h for details
 	double time;				// time of initiating event
 	Transaction transaction;
@@ -23,8 +27,10 @@ struct Event
 	}
 
 	// comparator for priority queue
-	bool operator>(const Event& x, const Event& y)
+	bool operator >(Event const &x)
 	{
-		return x.time > y.time;
+		return time > x.time;
 	}
 };
+
+#endif
