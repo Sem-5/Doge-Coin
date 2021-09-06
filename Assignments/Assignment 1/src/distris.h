@@ -30,11 +30,11 @@ inline int poisson(double mean)
 	return pois(gen);
 }
 
-inline double exponential(double mean)
+inline double exponential(double lamda)
 {
 	static std::random_device rd;
 	std::mt19937 gen(rd());
-	std::exponential_distribution<double> exp(mean);
+	std::exponential_distribution<double> exp(lamda);
 	return exp(gen);
 }
 

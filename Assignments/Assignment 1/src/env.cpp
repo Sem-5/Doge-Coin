@@ -16,7 +16,7 @@ void Simulator::set_network()
 	{
 		// sampling degree for n-th node from poisson distribution
 		int d = poisson(k*(node-1));
-		while(d>n-1 || d==0)
+		while(d>node-1 || d==0)
 			d = poisson(k*(node-1));
 
 		// picking d random values
@@ -32,6 +32,13 @@ void Simulator::set_network()
 
 		arr.push_back(node);
 	}
+
+	for(int i = 0; i < n; i++){
+		std::cout<<"Node: "<<i<<std::endl;
+		for(auto id: users[i].peers)
+			std::cout<<id;
+		std::cout<<std::endl;
+	}
 }
 
 void Simulator::init_blocks()
@@ -42,10 +49,9 @@ void Simulator::init_blocks()
 	for(int i = 0; i<n; i++){
 		// generate block generation time (PoW)
 		double t = exponential(users[i].blk_time);
-		std::cout<<users[i].blk_time<<std::endl;
 
 		// add coinbase transaction
-		Transaction coinbase(txnID, i, -1, 50.0);
+		Transaction coinbase(txnID, -1, i, 50.0);
 		std::vector<Transaction> txns;
 		txns.push_back(coinbase);
 
@@ -111,9 +117,10 @@ double Simulator::get_latency(int i, int j, double size)
 
 	double v = light_delay[i][j];
 	double c = (users[i].fast && users[j].fast) ? 100 : 5;
-	double d = exponential(96.0/c);
+	double d = exponential(c * 1000.0/96.0);
 
-	double latency = v + (double)size/c + d;
+	double latency = v + size/c + d;
+	std::cout<<"Latency: "<<v<<" "<<" "<<size<<" "<<c<<" "<<d<<std::endl;
 	return latency;
 }
 
@@ -128,15 +135,18 @@ void Simulator::simulate(double end_time)
 		event_queue.pop();
 		cur_time = e.time;
 
+		if(cur_time > end_time)
+			break;
+
 		std::cout<<"Initiating Event:"<<std::endl;
 		switch(e.event_func)
 		{
 			case 0: std::cout<<"Generate Transaction"; break;
 			case 1: std::cout<<"Receive Transaction"; break;
-			case 2: std::cout<<"Generate Transaction"; break;
-			case 3: std::cout<<"Receive Transaction"; break;
+			case 2: std::cout<<"Generate Block"; break;
+			case 3: std::cout<<"Receive Block"; break;
 		}
-		std::cout<<"\nTime: "<<e.time<<"\nUser ID: "<<e.userID<<std::endl<<std::endl;
+		std::cout<<"\nTime: "<<e.time<<"\nUser ID: "<<e.userID<<"\nCurrent Time: "<<cur_time<<std::endl<<std::endl;
 
 		// call appropriate function
 		switch(e.event_func)
@@ -166,7 +176,6 @@ void Simulator::generate_transaction(Event e)
 
 	// call is_valid_txn to update lru and txn_pool of user
 	bool is_valid = users[e.userID].is_valid_txn(txn);
-
 	// if transaction is valid, broadcast to all peers
 	if(is_valid)
 	{
@@ -180,17 +189,23 @@ void Simulator::generate_transaction(Event e)
 								Block(-1,-1, std::vector<Transaction>(),-1,-1,-1,-1), 
 								peer_id, e.userID);
 				event_queue.push(new_event);
+
+				std::cout<<"Creating Event:\n";
+				std::cout<<"Receive Transaction\nTime: "<<t+cur_time<<"\nReceiver ID: "<<peer_id<<std::endl<<std::endl;
 			}
 		}
 	}
 
 	// schedule another event for next time transaction created
 	double t = exponential(users[e.userID].txn_time);
-	Event new_event(0, t, 
+	Event new_event(0, t+cur_time, 
 					Transaction(-1,-1,-1,-1), 
 					Block(-1,-1, std::vector<Transaction>(),-1,-1,-1,-1),
 					e.userID, e.userID);
 	event_queue.push(new_event);
+
+	std::cout<<"Creating Event:\n";
+	std::cout<<"Generate Transaction\nTime: "<<t+cur_time<<"\nUser ID: "<<e.userID<<std::endl<<std::endl;
 }
 
 void Simulator::receive_transaction(Event e)
@@ -211,6 +226,9 @@ void Simulator::receive_transaction(Event e)
 								Block(-1,-1, std::vector<Transaction>(),-1,-1,-1,-1), 
 								peer_id, e.userID);
 				event_queue.push(new_event);
+
+				std::cout<<"Creating Event:\n";
+				std::cout<<"Receive Transaction\nTime: "<<t+cur_time<<"\nReceiver ID: "<<peer_id<<std::endl<<std::endl;
 			}
 		}
 	}
@@ -247,13 +265,16 @@ void Simulator::generate_block(Event e)
 								 e.block, 
 								 peer_id, e.userID);
 				event_queue.push(new_event);
+
+				std::cout<<"Creating Event:\n";
+				std::cout<<"Receive Block\nTime: "<<t+cur_time<<"\nReceiver ID: "<<peer_id<<std::endl<<std::endl;
 			}
 		}
 	}
 
 	// choose set of transactions for block
 	std::vector<Transaction> txns = users[e.userID].choose_txns();
-	Transaction coinbase(txnID, e.userID, -1, 50.0);
+	Transaction coinbase(txnID, -1, e.userID, 50.0);
 	txns.push_back(coinbase);
 
 	// block creation time
@@ -266,6 +287,8 @@ void Simulator::generate_block(Event e)
 					blk, 
 					e.userID, e.userID);
 	event_queue.push(new_event);
+	std::cout<<"Creating Event:\n";
+	std::cout<<"Generate Block\nTime: "<<t+cur_time<<"\nUser ID: "<<e.userID<<"\nNumber of Transactions: "<<txns.size()-1<<std::endl<<std::endl;
 }
 
 void Simulator::receive_block(Event e)
@@ -285,7 +308,7 @@ void Simulator::receive_block(Event e)
 	{
 		// choose set of transactions for block
 		std::vector<Transaction> txns = users[e.userID].choose_txns();
-		Transaction coinbase(txnID, e.userID, -1, 50.0);
+		Transaction coinbase(txnID, -1, e.userID, 50.0);
 		txns.push_back(coinbase);
 
 		// block creation time
@@ -298,6 +321,9 @@ void Simulator::receive_block(Event e)
 						blk, 
 						e.userID, e.userID);
 		event_queue.push(new_event);
+
+		std::cout<<"Creating Event:\n";
+		std::cout<<"Generate Block\nTime: "<<t+cur_time<<"\nUser ID: "<<e.userID<<std::endl<<std::endl;
 	}
 
 	// if block is valid, share to all peers
@@ -313,6 +339,9 @@ void Simulator::receive_block(Event e)
 								recv_block, 
 								peer_id, e.userID);
 				event_queue.push(new_event);
+
+				std::cout<<"Creating Event:\n";
+				std::cout<<"Receive Block\nTime: "<<t+cur_time<<"\nReceiver ID: "<<peer_id<<std::endl<<std::endl;
 			}
 		}
 	}

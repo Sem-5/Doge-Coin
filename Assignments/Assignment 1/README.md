@@ -1,10 +1,14 @@
-## TO DO
+## NOTE
+It feels like functions are running, but i really have no clue how to test tbh. I just saw blocks and transactions are being generated and received for 2 and 3 nodes simulation to keep track of shit.
+Need to think of good parameter times and more debugging may be necessary 
 
-1. If longer chain created before block generated, remove generate_block event queued for the particular user. Modify `env.cpp`, `receive_block` function.
-2. `update_balance` in `user.cpp`. When longer chain generated, need to access up to lca and back to new block and modify balance
-3. `choose_transaction` in `user.cpp` to select a random subset of transactions from its transaction pool.
+## Input Format
 
-## IMPORTANT NOTE
-HEAVY TESTING NEEDED! THERE WERE TOO MANY THINGS TO KEEP TRACK OF AND I HV MP FUCKED HALF OF THE THINGS IN TRYING TO ADD MORE AND MORE CODE. SYNTAX ERRORS, LOGICAL ERRORS, EVERYTHING WILL BE THERE. TEST THIS SHIT PROPERLY. 
+n, z, end_time
+T_1, T_2, ..., T_n
+B_1, B_2, ..., B_n
 
-Make a `main.cpp` and call simulator, no file format rn, just give inputs in any way u like. Add some loggings here and there and check functionality.
+T_i - mean time to generate new transaction for user i
+B_i - mean time to generate new block for user i (i.e. time for PoW)
+0<=z<=1
+All times are in seconds

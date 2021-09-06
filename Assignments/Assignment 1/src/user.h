@@ -18,8 +18,8 @@ class User
 {
 public:
 	int curr_blkID;									// blockID of leaf of longest chain
-	double txn_time;								// mean of exponential for generating next txn
-	double blk_time;								// mean of exponential for PoW
+	double txn_time;								// parameter of exponential for generating next txn
+	double blk_time;								// parameter of exponential for PoW
 
 	std::vector<int> peers;								// store ID of all peers
 	std::vector<int> balance;							// coin balance of each peer

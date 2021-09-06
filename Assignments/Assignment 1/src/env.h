@@ -1,6 +1,7 @@
 #ifndef env_h
 #define env_h
 
+#include <iostream>
 #include <queue>
 #include <vector>
 #include <cmath>
@@ -33,7 +34,7 @@ public:
 		blockID++;
 
 		for(int i = 0; i < n; i++){
-			User user(txn_means[i], blk_means[i], n, genesis, fast[i]);
+			User user(1.0/txn_means[i], 1.0/blk_means[i], n, genesis, fast[i]);
 			users.push_back(user);
 		}
 
@@ -44,7 +45,7 @@ public:
 				if(i==j)
 					light_delay[i][j] = 0;
 				else
-					light_delay[i][j] = unif_real(10, 500);
+					light_delay[i][j] = unif_real(10, 500)/1000.0;
 			}
 		}
 
