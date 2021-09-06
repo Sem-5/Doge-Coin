@@ -4,6 +4,7 @@
 #include <queue>
 #include <vector>
 #include <cmath>
+#include <algorithm>
 
 #include "user.h"
 #include "event.h"
@@ -55,7 +56,7 @@ public:
 		init_txns();
 
 		// start simulating
-		// simulate(end_time);
+		simulate(end_time);
 	}
 
 	// controlling simulation

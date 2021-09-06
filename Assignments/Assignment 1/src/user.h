@@ -9,6 +9,7 @@
 #include <random>
 #include <list>
 #include <cmath>
+#include <algorithm>
 
 #include "txn.h"
 #include "block.h"

@@ -58,7 +58,7 @@ void Simulator::init_blocks()
 				i, i);
 		event_queue.push(e);
 		std::cout<<"Creating Event:\n";
-		std::cout<<"Generate Block\n Time: "<<t<<"\nUser ID: "<<i<<std::endl<<std::endl;
+		std::cout<<"Generate Block\nTime: "<<t<<"\nUser ID: "<<i<<std::endl<<std::endl;
 
 	}
 }
@@ -80,7 +80,7 @@ void Simulator::init_txns()
 		event_queue.push(e);
 
 		std::cout<<"Creating Event:\n";
-		std::cout<<"Generate Transaction\n Time: "<<t<<"\nUser ID: "<<i<<std::endl<<std::endl;
+		std::cout<<"Generate Transaction\nTime: "<<t<<"\nUser ID: "<<i<<std::endl<<std::endl;
 	}
 }
 
@@ -127,6 +127,16 @@ void Simulator::simulate(double end_time)
 
 		event_queue.pop();
 		cur_time = e.time;
+
+		std::cout<<"Initiating Event:"<<std::endl;
+		switch(e.event_func)
+		{
+			case 0: std::cout<<"Generate Transaction"; break;
+			case 1: std::cout<<"Receive Transaction"; break;
+			case 2: std::cout<<"Generate Transaction"; break;
+			case 3: std::cout<<"Receive Transaction"; break;
+		}
+		std::cout<<"\nTime: "<<e.time<<"\nUser ID: "<<e.userID<<std::endl<<std::endl;
 
 		// call appropriate function
 		switch(e.event_func)
