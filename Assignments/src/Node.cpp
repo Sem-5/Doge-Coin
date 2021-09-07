@@ -1,6 +1,8 @@
 #include "Node.h"
 #include <stack>
 
+#define LOGDIR std::string("logs/")
+
 bool Node::modifyChain(int blkid)
 {
     /* Find common ancestor in blockchain */
@@ -158,7 +160,7 @@ Block Node::mine()
 void Node::print()
 {
     std::ofstream ofd;
-    ofd.open(std::to_string(getID()) + "_TREE.log", std::ios::ate);
+    ofd.open(LOGDIR + std::to_string(getID()) + "_TREE.log", std::ios::ate);
     ofd << mineSpeed << std::endl;
     for (auto [x,y] : BlockTree)
     {
@@ -166,7 +168,8 @@ void Node::print()
             << " " << y.Txns().size() << " " << y.Miner() << std::endl;
     }
     ofd.close();
-    std::stack<std::string> chain; 
+    std::stack<std::string> chain;
+    std::stack<int> chainID;
     int tail = chainLast;
     while(tail != -1)
     {
@@ -184,13 +187,21 @@ void Node::print()
             }
         }
         chain.push(block_log);
+        chainID.push(tail);
         tail = BlockTree[tail].Parent();
     }
-    ofd.open(std::to_string(getID()) + "_CHAIN.log", std::ios::ate);
+    ofd.open(LOGDIR + std::to_string(getID()) + "_TNX.log", std::ios::ate);
     while(!chain.empty())
     {
         ofd << chain.top() << std::endl;
         chain.pop();
+    }
+    ofd.close();
+    ofd.open(LOGDIR + std::to_string(getID()) + "_CHAIN.log", std::ios::ate);
+    while(!chainID.empty())
+    {
+        ofd << chainID.top() << std::endl;
+        chainID.pop();
     }
     ofd.close();
 }
