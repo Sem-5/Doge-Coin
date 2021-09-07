@@ -12,6 +12,7 @@ private:
     int id;
     bool isFast;
     double mineSpeed;
+    int nMined;
     std::vector<int> peerID;
     std::unordered_set<int> TransmitID; // have broadcasted before
 

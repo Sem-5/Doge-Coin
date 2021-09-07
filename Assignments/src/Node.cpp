@@ -1,4 +1,4 @@
-#include "Node.h"
+#include "Node.hpp"
 #include <stack>
 
 #define LOGDIR std::string("logs/")
@@ -135,6 +135,7 @@ int Node::recvBlock(Block blk)
 
 Block Node::mine()
 {
+    nMined++;
     int ntxn = std::min( (size_t)999, TxnPool.size());
     std::vector<Txn> txns;
     std::unordered_set<int>::iterator it;
@@ -161,7 +162,7 @@ void Node::print()
 {
     std::ofstream ofd;
     ofd.open(LOGDIR + std::to_string(getID()) + "_TREE.log", std::ios::ate);
-    ofd << mineSpeed << " " << isFast << std::endl;
+    ofd << mineSpeed << " " << isFast << " " << nMined << std::endl;
     for (auto [x,y] : BlockTree)
     {
         ofd << y.getArrivalTime() << " " << x << " " << y.Parent() 
@@ -200,7 +201,7 @@ void Node::print()
     ofd.open(LOGDIR + std::to_string(getID()) + "_CHAIN.log", std::ios::ate);
     while(!chainID.empty())
     {
-        ofd << chainID.top() << std::endl;
+        ofd << chainID.top() << " " << BlockTree[chainID.top()].Miner() << std::endl;
         chainID.pop();
     }
     ofd.close();

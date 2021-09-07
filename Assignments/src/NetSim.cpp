@@ -19,7 +19,7 @@ NetSim::NetSim(int numNodes, double fracSlow,  double txnparam, double blockpara
     {
         nodes[i].setID(i);
         nodes[i].setSpeed(isFast[i]);
-        nodes[i].setMineSpeed(Random::posGaussian(blockGen, blockGen/5.0));
+        nodes[i].setMineSpeed(Random::unif_real(3.0*blockGen/5.0, 7.0*blockGen/5.0));
     }
 
     {
