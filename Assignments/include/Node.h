@@ -26,7 +26,7 @@ private:
     bool modifyChain(int blkid); // returns 1 on successful modification
 
 public:
-    Node() : chainLen(1), chainLast(0), BlockChain({0}) { BlockTree[0] = Block(); }
+    Node() : chainLen(0), chainLast(0), BlockChain({0}) { BlockTree[0] = Block(); }
     
     /* Transaction forwarding related functions  */
     inline void setID( int ID ) { id = ID; }

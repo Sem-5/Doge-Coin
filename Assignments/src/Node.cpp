@@ -1,5 +1,5 @@
 #include "Node.h"
-#include <iostream>
+#include <iostream> // debug
 #include <stack>
 
 bool Node::modifyChain(int blkid)
@@ -68,7 +68,10 @@ bool Node::modifyChain(int blkid)
         }
 
         if(!valid)
+        {
+            std::cout << "Block " << tail << " is invalid, aborting" << std::endl;
             break;
+        }
     }
     
     if (!valid)
@@ -81,18 +84,18 @@ bool Node::modifyChain(int blkid)
             newBlocks.pop();
         }
         /* Restore State */
-        for (auto x : delUTXO)
-            UTXO[x.first] -= x.second;
-        for (auto x : delInChain)
-            if (x.second < 0)
-                TxnInChain.insert(x.first);
-            else if (x.second > 0)
-                TxnInChain.erase(x.first);
-        for (auto x : delPool)
-            if (x.second < 0)
-                TxnPool.insert(x.first);
-            else if (x.second > 0)
-                TxnPool.erase(x.first);
+        for (auto [x,y] : delUTXO)
+            UTXO[x] -= y;
+        for (auto [x,y] : delInChain)
+            if (y < 0)
+                TxnInChain.insert(x);
+            else if (y > 0)
+                TxnInChain.erase(x);
+        for (auto [x,y] : delPool)
+            if (y < 0)
+                TxnPool.insert(x);
+            else if (y > 0)
+                TxnPool.erase(x);
         return 0;
     }
 
@@ -109,6 +112,7 @@ bool Node::modifyChain(int blkid)
         newBlocksCopy.pop();
     }
 
+    std::cout << "New block added successfully" << std::endl;
     chainLast = blkid;
     chainLen = BlockTree[blkid].Depth();
     return 1;
@@ -119,24 +123,41 @@ bool Node::recvBlock(Block blk)
     TransmitID.insert(blk.ID());
     int id = blk.ID();
     int pid = blk.Parent();
-    if (BlockTree.find(id) != BlockTree.end()) return 0;
-    if (BlockTree.find(pid) == BlockTree.end()) return 0;
+    if (BlockTree.find(id) != BlockTree.end()) 
+    {
+        std::cout << "Have seen block " << id << " before" << std::endl; 
+        return 0;
+    }
+    if (BlockTree.find(pid) == BlockTree.end()) 
+    {
+        std::cout << "Cannot identify parent " << pid << " of " << id << std::endl;
+        return 0;
+    }
     BlockTree[id] = blk;
     BlockTree[id].setDepth(BlockTree[pid].Depth() + 1);
     if (BlockTree[id].Depth() > chainLen)
+    {
+        std::cout << "Length exceeded - running modify" << std::endl;
         return modifyChain(id);
+    }
     return 0;
 }
 
 Block Node::mine()
 {
+    std::cout << "Mining on " << chainLast << std::endl;
     int ntxn = std::min( (size_t)999, TxnPool.size());
     std::vector<Txn> txns;
     std::unordered_set<int>::iterator it;
     if (!TxnPool.empty()) it = TxnPool.begin();
+    std::unordered_map<int,int> expense;
     while (ntxn--)
     {
-        txns.push_back(TxnMap[*it]);
+        Txn txn = TxnMap[*it];
+        expense[txn.Sender()] += txn.Amount();
+        expense[txn.Receiver()] -= txn.Amount();
+        if (expense[txn.Sender()] <= UTXO[txn.Sender()]) 
+            txns.push_back(txn);
         std::advance(it, 1);
     }
     return Block(txns, chainLast, id);
