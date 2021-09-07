@@ -1,7 +1,6 @@
 #ifndef Txn_H
 #define Txn_H
 
-#define TXN_FILE "transaction.txt"
 #include "getID.hpp"
 #include <fstream>
 
@@ -14,13 +13,8 @@ private:
     int amt;
 
 public:
-    Txn(int send, int recv, int amt) : send(send), recv(recv), amt(amt), id(getID())
-    {
-        std::ofstream ofd;
-        ofd.open(TXN_FILE, std::ios::app);
-        ofd << "Transaction " << id << " : " << send << " pays " << recv << " " << amt << " coins" << std::endl;
-        ofd.close();
-    }
+    Txn(int send, int recv, int amt) : 
+    send(send), recv(recv), amt(amt), id(getID()) {}
     Txn() : id(-1), send(-1), recv(-1), amt(0) {}
     inline int ID() { return id; }
     inline int Sender() { return send; }

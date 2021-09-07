@@ -63,7 +63,6 @@ public:
     inline double getCurrTime() { return currTime; }
     inline double getTxnGen() { return TxnGen; }
     inline int getNum() { return nNodes; }
-    void dump();
 };
 
 #endif

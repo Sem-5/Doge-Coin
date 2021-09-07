@@ -1,12 +1,9 @@
 #ifndef Block_H
 #define Block_H
 
-#define BLK_FILE "block.txt"
-
 #include "getID.hpp"
 #include "Txn.hpp"
 #include <vector>
-#include <fstream>
 #include <unordered_map>
 
 class Block
@@ -27,15 +24,7 @@ public:
     */
     Block(std::vector<Txn> txns, int phash, int minerID) : 
     phash(phash), txns(txns), id(getID()), depth(-1), minerID(minerID)
-    {
-        std::ofstream ofd;
-        ofd.open(BLK_FILE, std::ios::app);
-        ofd << "Block " << id << " : ";
-        for (auto tx : txns)
-            ofd << tx.ID() << " ";
-        ofd << std::endl;
-        ofd.close();
-        
+    {   
         /* update balanceSheet */
         balanceSheet[minerID] += 50;
         for (auto txn : txns)
