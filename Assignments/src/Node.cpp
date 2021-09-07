@@ -158,6 +158,11 @@ Block Node::mine()
         expense[txn.Receiver()] -= txn.Amount();
         if (expense[txn.Sender()] <= UTXO[txn.Sender()]) 
             txns.push_back(txn);
+        else
+        {
+            expense[txn.Sender()] -= txn.Amount();
+            expense[txn.Receiver()] += txn.Amount();
+        }
         std::advance(it, 1);
     }
     return Block(txns, chainLast, id);
