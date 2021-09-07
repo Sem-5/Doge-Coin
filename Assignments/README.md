@@ -15,4 +15,17 @@ Each x_TXN.log files contains the complete blockchain with all transactions (ver
 Each x_CHAIN.log file contains the longest blockchain in order genesis -> latest and each block's miner  
 
 # Directions
-Please create a logs/ directory in your build directory!!
+To compile, follow :
+
+1. <mark>mkdir build</mark>
+2. <mark>cd build</mark>
+3. <mark>mkdir logs</mark>
+4. <mark>cmake ..</mark>
+5. <mark>make </mark>
+
+Now you can run the sim executable  
+
+To test visualization scripts, enter the visualize directory and perform
+1. <mark>mkdir logs</mkdir>
+
+before running the scripts
