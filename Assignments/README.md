@@ -1,18 +1,19 @@
 # Parameters
-Parameters num_nodes, franction of slow nodes, TxnGen time and BlockIntervals are specified in NetSim constructor  
-TxnGen : specified per node  
-BlockInterval : specified for whole chain  
+TxnGen : specified per node in milliseconds  
+BlockInterval : specified for whole chain in milliseconds  
 
 # Logs
-Each x_TREE.log file contains :  
-mining_speed(ms) 0/1(1 = fast and 0 = slow) number_mined   
+Each x_TREE.log file contains complete blocktree:  
+mining_speed(in ms) 0/1(1 = fast and 0 = slow) number_of_mined_blocks   
 time_recv id parent_id nTxns minerID  
 .  
 .  
 .  
+for each block id in blocktree  
+
 Each x_TXN.log files contains the complete blockchain with all transactions (verbose)  
 
-Each x_CHAIN.log file contains the longest blockchain in order genesis -> latest and each block's miner  
+Each x_CHAIN.log file contains the blockchain in order genesis -> latest and each block's miner  
 
 # Directions
 To compile, follow :
