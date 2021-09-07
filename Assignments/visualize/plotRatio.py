@@ -1,10 +1,13 @@
 import subprocess
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 buildDir = "../build/"
 logDir = "logs/"
 
+for f in os.listdir(logDir):
+    os.remove(logDir+f)
 subprocess.run([buildDir+"sim", "30", "0.5", "7.5e3", "30e3", "6000e3"])
 
 speed = []
