@@ -53,6 +53,10 @@ private:
     double currTime, TxnGen, blockGen;
 
 public:
+    /*
+        txnparam : specified per node  
+        blockparam : specified for whole chain  
+    */
     NetSim(int numNodes, double fracSlow, double txnparam, double blockparam);
     double getDelay(int send, int recv, int nkbits);
     void simulate(double endTime);

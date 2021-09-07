@@ -4,6 +4,7 @@
 #include <random>
 #include <algorithm>
 
+/* Non Instantiable static class for Random Distributions */
 class Random
 {
 private:
