@@ -1,6 +1,5 @@
 #include "NetSim.hpp"
 #include "Random.hpp"
-#include <iostream> // debugging
 
 #define CMAX 20
 

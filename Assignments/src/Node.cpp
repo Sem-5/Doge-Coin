@@ -136,6 +136,7 @@ int Node::recvBlock(Block blk)
 Block Node::mine()
 {
     nMined++;
+    /* Picks max possible transactions from pool and tries to create meaningful block with them */
     int ntxn = std::min( (size_t)999, TxnPool.size());
     std::vector<Txn> txns;
     std::unordered_set<int>::iterator it;
@@ -158,6 +159,7 @@ Block Node::mine()
     return Block(txns, chainLast, id);
 }
 
+/* Logger functin. Read README for details. */
 void Node::print()
 {
     std::ofstream ofd;
