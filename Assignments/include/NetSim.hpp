@@ -38,12 +38,11 @@ private:
     int nNodes;
     std::vector<Node> nodes;
     std::map<pii, double> solDelay;
-    double slowTR, fastTR;
     std::multimap<double, Event*> eventQueue;
-    double currTime, TxnGen;
+    double currTime, TxnGen, blockGen;
 
 public:
-    NetSim(int numNodes, double fracSlow, double howFast, double txnparam);
+    NetSim(int numNodes, double fracSlow, double howFast, double txnparam, double blockparam);
     double getDelay(int send, int recv, int nkbits);
     void simulate(double endTime);
 

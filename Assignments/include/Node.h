@@ -9,10 +9,13 @@
 class Node
 {
 private:
+    int id;
     bool isFast;
+    double mineSpeed;
     std::vector<int> peerID;
     std::unordered_set<int> TxnID; // have broadcasted before
 
+    std::unordered_map<int, Txn> TxnMap; // stores the actual transaction ONCE
     std::unordered_set<int> TxnPool; // not in the longest blockchain
     std::unordered_map<int, Block> BlockTree;
     std::unordered_set<int> BlockChain; // id of each block in current chain
@@ -20,27 +23,33 @@ private:
     std::unordered_map<int, int> UTXO; // remaining coins at each node (by current longest)
     int chainLen, chainLast;
 
-    void modifyChain(int blkid);
+    bool modifyChain(int blkid); // returns 1 on successful modification
 
 public:
     Node() : chainLen(1), chainLast(0), BlockChain({0}) { BlockTree[0] = Block(); }
     
     /* Transaction forwarding related functions  */
-    void setSpeed(bool fast) { isFast = fast; }
-    bool getSpeed() const { return isFast; }
-    void addPeer(int peer) { peerID.push_back(peer); }
-    const std::vector<int> & getPeers() const { return peerID; }
-    void addTxn (int txn) 
+    inline void setID( int ID ) { id = ID; }
+    inline int getID() { return id; }
+    inline void setSpeed(bool fast) { isFast = fast; }
+    inline bool getSpeed() const { return isFast; }
+    inline double getMineSpeed() const { return mineSpeed; }
+    inline void setMineSpeed(double ms) { mineSpeed = ms; }
+    inline void addPeer(int peer) { peerID.push_back(peer); }
+    inline const std::vector<int> & getPeers() const { return peerID; }
+    void addTxn (Txn txn) 
     { 
-        TxnID.insert(txn);
-        if (TxnInChain.find(txn) == TxnInChain.end())
-            TxnPool.insert(txn); 
+        TxnID.insert(txn.ID());
+        TxnMap[txn.ID()] = txn;
+        if (TxnInChain.find(txn.ID()) == TxnInChain.end())
+            TxnPool.insert(txn.ID()); 
     }
-    bool qeuryTxn(int txn) const { return TxnID.find(txn) != TxnID.end(); }
+    inline bool qeuryTxn(int txn) const { return TxnID.find(txn) != TxnID.end(); }
 
     /* Blockchain related functions */
-    void recvBlock(Block blk);
-
+    bool recvBlock(Block blk); // Returns 1 iff new block formed a longer chain
+    inline int getMineID() { return chainLast; }
+    Block mine();
 };
 
 #endif

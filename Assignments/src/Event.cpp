@@ -9,7 +9,7 @@ void TxnEvent::run()
     Node& rNode = simulator->getNodeRef(recv);
     if ( ! rNode.qeuryTxn(txn.ID()) )
     {
-        rNode.addTxn(txn.ID());
+        rNode.addTxn(txn);
         for (auto node : rNode.getPeers())
             if (node != send)
             {

@@ -3,19 +3,20 @@
 #include <algorithm>
 #include <math.h>
 
-NetSim::NetSim(int numNodes, double fracSlow, double howFast, double txnparam) :
- nNodes(numNodes), nodes(numNodes), currTime(0.0), TxnGen(txnparam)
+NetSim::NetSim(int numNodes, double fracSlow, double howFast, double txnparam, double blockparam) :
+ nNodes(numNodes), nodes(numNodes), currTime(0.0), TxnGen(txnparam), blockGen(blockparam)
 {
-    fastTR = 600000.0 / (1 + fracSlow * (howFast - 1));
-    slowTR = howFast * fastTR;
-
     int nSlow = fracSlow * numNodes;
     std::vector<bool> isFast(numNodes);
     for (int i = nSlow; i < numNodes; ++i)
         isFast[i] = true;
     std::shuffle(isFast.begin(), isFast.end(), std::mt19937{std::random_device{}()});
     for (int i = 0; i < numNodes; ++i)
+    {
+        nodes[i].setID(i);
         nodes[i].setSpeed(isFast[i]);
+        nodes[i].setMineSpeed(Random::posGaussian(blockparam, blockparam/10.0));
+    }
 
     {
         double param = (log10(numNodes) / numNodes);

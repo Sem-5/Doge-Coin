@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/sim.dir/src/Event.cpp.o"
   "CMakeFiles/sim.dir/src/NetSim.cpp.o"
+  "CMakeFiles/sim.dir/src/Node.cpp.o"
   "CMakeFiles/sim.dir/src/getID.cpp.o"
   "CMakeFiles/sim.dir/src/main.cpp.o"
   "sim"

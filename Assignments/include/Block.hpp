@@ -7,6 +7,7 @@
 #include "Txn.hpp"
 #include <vector>
 #include <fstream>
+#include <unordered_map>
 
 class Block
 {
@@ -46,8 +47,9 @@ public:
     inline int Depth() { return depth; }
     inline int Parent() { return phash; }
     inline const std::vector<Txn>& Txns() { return txns; }
-    inline const std::unordered_map<int,int> Balance() { return balanceSheet; }
-    void setDepth(int d) { depth = d; }
+    inline const std::unordered_map<int,int>& Balance() { return balanceSheet; }
+    inline void setDepth(int d) { depth = d; }
+    inline int size() { return txns.size()+1; } // in KB
 };
 
 #endif

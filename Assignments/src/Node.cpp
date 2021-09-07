@@ -1,10 +1,8 @@
 #include "Node.h"
 #include <iostream>
-#include <unordered_set>
-#include <unordered_map>
 #include <stack>
 
-void Node::modifyChain(int blkid)
+bool Node::modifyChain(int blkid)
 {
     int lca = blkid;
     std::stack<int> newBlocks;
@@ -90,22 +88,38 @@ void Node::modifyChain(int blkid)
                 TxnPool.insert(x.first);
             else if (x.second > 0)
                 TxnPool.erase(x.first);
-        return;
+        return 0;
     }
 
     /* If here, new chain is legit */
     chainLast = blkid;
     chainLen = BlockTree[blkid].Depth();
+    return 1;
 }
 
-void Node::recvBlock(Block blk)
+bool Node::recvBlock(Block blk)
 {
     int id = blk.ID();
     int pid = blk.Parent();
-    if (BlockTree.find(id) != BlockTree.end()) return;
-    if (BlockTree.find(pid) == BlockTree.end()) return;
+    if (BlockTree.find(id) != BlockTree.end()) return 0;
+    if (BlockTree.find(pid) == BlockTree.end()) return 0;
     BlockTree[id] = blk;
     BlockTree[id].setDepth(BlockTree[pid].Depth() + 1);
     if (BlockTree[id].Depth() > chainLen)
-        modifyChain(id);
+        return modifyChain(id);
+    return 0;
+}
+
+Block Node::mine()
+{
+    int ntxn = std::min( (size_t)999, TxnPool.size());
+    std::vector<Txn> txns;
+    std::unordered_set<int>::iterator it;
+    if (!TxnPool.empty()) it = TxnPool.begin();
+    while (ntxn--)
+    {
+        txns.push_back(TxnMap[*it]);
+        std::advance(it, 1);
+    }
+    return Block(txns, chainLast, id);
 }
