@@ -15,6 +15,7 @@ private:
 public:
     Txn(int send, int recv, int amt) : 
     send(send), recv(recv), amt(amt), id(getID()) {}
+    // Do not use other than in a map
     Txn() : id(-1), send(-1), recv(-1), amt(0) {}
     inline int ID() { return id; }
     inline int Sender() { return send; }
