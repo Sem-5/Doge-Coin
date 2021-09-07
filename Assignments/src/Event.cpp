@@ -39,18 +39,26 @@ void BlkEvent::run()
     Node& rNode = simulator->getNodeRef(recv);
     if ( ! rNode.qeury(blk.ID()) )
     {
-        for (auto node : rNode.getPeers())
-            if (node != send)
-            {
-                double t = simulator->getCurrTime() + simulator->getDelay(recv, node, 8*blk.size());
-                simulator->addEvent(t, new BlkEvent(recv, node, blk, simulator));
-            }
-
-        if ( rNode.recvBlock(blk) )
+        if ((send == recv) && (blk.Parent() != rNode.getMineID()))
         {
-            // If this created a new chain
-            double t = simulator->getCurrTime() + Random::exponential(rNode.getMineSpeed());
-            simulator->addEvent(t, new BlkEvent(recv, recv, rNode.mine(), simulator));
+            std::cout << "Block is outdated" << std::endl;
+            return;
+        }
+        int code = rNode.recvBlock(blk);
+        if ( code )
+        {
+            for (auto node : rNode.getPeers())
+                if (node != send)
+                {
+                    double t = simulator->getCurrTime() + simulator->getDelay(recv, node, 8*blk.size());
+                    simulator->addEvent(t, new BlkEvent(recv, node, blk, simulator));
+                }
+            // If this created a new chain mine on it
+            if( code & 1 )
+            {
+                double t = simulator->getCurrTime() + Random::exponential(rNode.getMineSpeed());
+                simulator->addEvent(t, new BlkEvent(recv, recv, rNode.mine(), simulator));
+            }
         }
     }
 }

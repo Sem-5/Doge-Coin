@@ -118,7 +118,7 @@ bool Node::modifyChain(int blkid)
     return 1;
 }
 
-bool Node::recvBlock(Block blk)
+int Node::recvBlock(Block blk)
 {
     TransmitID.insert(blk.ID());
     int id = blk.ID();
@@ -140,7 +140,7 @@ bool Node::recvBlock(Block blk)
         std::cout << "Length exceeded - running modify" << std::endl;
         return modifyChain(id);
     }
-    return 0;
+    return 2;
 }
 
 Block Node::mine()
