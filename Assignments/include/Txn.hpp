@@ -21,6 +21,7 @@ public:
         ofd << "Transaction " << id << " : " << send << " pays " << recv << " " << amt << " coins" << std::endl;
         ofd.close();
     }
+    Txn() : id(-1), send(-1), recv(-1), amt(0) {}
     inline int ID() { return id; }
     inline int Sender() { return send; }
     inline int Receiver() { return recv; }

@@ -57,6 +57,10 @@ void NetSim::simulate(double endTime)
         Txn newtxn = Txn(i, i, 0);
         addEvent(0.0, new TxnEvent(i, i, newtxn, this));
     }
+    {
+        int start = Random::unif_int(0, nNodes-1);
+        addEvent(0.0, new BlkEvent(start, start, Block(std::vector<Txn>(0), 0, start), this));
+    }
     while ((currTime < endTime) && (!eventQueue.empty()))
     {
         auto it = eventQueue.begin();

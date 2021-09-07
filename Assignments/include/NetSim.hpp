@@ -32,6 +32,17 @@ public:
     void run();
 };
 
+class BlkEvent : public Event
+{
+    int send;
+    int recv;
+    Block blk;
+public:
+    BlkEvent(int send, int recv, Block blk, NetSim* sim) :
+    Event(sim), send(send), recv(recv), blk(blk) {}
+    void run();
+};
+
 class NetSim
 {
 private:

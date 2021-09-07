@@ -13,7 +13,7 @@ private:
     bool isFast;
     double mineSpeed;
     std::vector<int> peerID;
-    std::unordered_set<int> TxnID; // have broadcasted before
+    std::unordered_set<int> TransmitID; // have broadcasted before
 
     std::unordered_map<int, Txn> TxnMap; // stores the actual transaction ONCE
     std::unordered_set<int> TxnPool; // not in the longest blockchain
@@ -39,12 +39,12 @@ public:
     inline const std::vector<int> & getPeers() const { return peerID; }
     void addTxn (Txn txn) 
     { 
-        TxnID.insert(txn.ID());
+        TransmitID.insert(txn.ID());
         TxnMap[txn.ID()] = txn;
         if (TxnInChain.find(txn.ID()) == TxnInChain.end())
             TxnPool.insert(txn.ID()); 
     }
-    inline bool qeuryTxn(int txn) const { return TxnID.find(txn) != TxnID.end(); }
+    inline bool qeury(int hash) const { return TransmitID.find(hash) != TransmitID.end(); }
 
     /* Blockchain related functions */
     bool recvBlock(Block blk); // Returns 1 iff new block formed a longer chain

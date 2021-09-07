@@ -116,6 +116,7 @@ bool Node::modifyChain(int blkid)
 
 bool Node::recvBlock(Block blk)
 {
+    TransmitID.insert(blk.ID());
     int id = blk.ID();
     int pid = blk.Parent();
     if (BlockTree.find(id) != BlockTree.end()) return 0;
