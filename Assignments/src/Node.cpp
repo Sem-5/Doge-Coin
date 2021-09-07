@@ -161,7 +161,7 @@ void Node::print()
     ofd.open(std::to_string(getID()) + "_TREE.log", std::ios::app);
     for (auto [x,y] : BlockTree)
     {
-        ofd << y.getArrivalTime() << " " << x << " " << y.Parent() << std::endl;
+        ofd << y.getArrivalTime() << " " << x << " " << y.Parent() << " " << y.Txns().size() <<std::endl;
     }
     ofd.close();
 }

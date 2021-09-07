@@ -5,6 +5,8 @@
 
 #include <iostream> // debug
 
+#define CMAX 20
+
 NetSim::NetSim(int numNodes, double fracSlow,  double txnparam, double blockparam) :
  nNodes(numNodes), nodes(numNodes), currTime(0.0), TxnGen(txnparam), blockGen(blockparam*numNodes)
 {
@@ -56,12 +58,19 @@ void NetSim::simulate(double endTime)
 {
     for (int i = 0; i < nNodes; ++i)
     {
-        Txn newtxn = Txn(i, i, 0);
-        addEvent(0.0, new TxnEvent(i, i, newtxn, this));
+        double t = Random::exponential(getTxnGen());
+        int node;
+        do
+        {
+            node = Random::unif_int(0, nNodes-1);
+        } while (node == i);
+        int amt = Random::unif_int(1, CMAX);
+        addEvent(t, new TxnEvent(i, i, Txn(i, node, amt), this));
     }
+    for (int i = 0; i < nNodes; ++i)
     {
-        int start = Random::unif_int(0, nNodes-1);
-        addEvent(0.0, new BlkEvent(start, start, Block(std::vector<Txn>(0), 0, start), this));
+        double t = Random::exponential(getTxnGen());
+        addEvent(t, new BlkEvent(i, i, nodes[i].mine(), this));
     }
     while ((currTime < endTime) && (!eventQueue.empty()))
     {

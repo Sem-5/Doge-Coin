@@ -46,7 +46,7 @@ public:
 
     }
     // use ONLY for genesis block creation
-    Block() : id(0), phash(-1), depth(0), minerID(-1) {}
+    Block() : id(0), phash(-1), depth(0), minerID(-1), arrivalTime(0.0) {}
     
     inline int ID() { return id; }
     inline int Depth() { return depth; }
