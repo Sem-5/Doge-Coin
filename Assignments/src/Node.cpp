@@ -1,9 +1,9 @@
 #include "Node.h"
-#include <iostream> // debug
 #include <stack>
 
 bool Node::modifyChain(int blkid)
 {
+    /* Find common ancestor in blockchain */
     int lca = blkid;
     std::stack<int> newBlocks;
     while (BlockChain.find(lca) == BlockChain.end())
@@ -12,7 +12,7 @@ bool Node::modifyChain(int blkid)
         lca = BlockTree[lca].Parent();
     }
 
-    /* Backup */
+    /* Backup if the new chain is invalid*/
     std::unordered_map<int, int> delUTXO;
     std::unordered_map<int, int> delInChain;
     std::unordered_map<int, int> delPool;
@@ -38,7 +38,7 @@ bool Node::modifyChain(int blkid)
         tail = BlockTree[tail].Parent();
     }
 
-    /* Add up from lca */
+    /* Add new blocks from lca */
     bool valid = true;
     while (!newBlocks.empty())
     {
@@ -68,10 +68,7 @@ bool Node::modifyChain(int blkid)
         }
 
         if(!valid)
-        {
-            std::cout << "Block " << tail << " is invalid, aborting" << std::endl;
             break;
-        }
     }
     
     if (!valid)
@@ -96,6 +93,7 @@ bool Node::modifyChain(int blkid)
                 TxnPool.insert(x);
             else if (y > 0)
                 TxnPool.erase(x);
+
         return 0;
     }
 
@@ -112,7 +110,6 @@ bool Node::modifyChain(int blkid)
         newBlocksCopy.pop();
     }
 
-    std::cout << "New block added successfully" << std::endl;
     chainLast = blkid;
     chainLen = BlockTree[blkid].Depth();
     return 1;
@@ -124,28 +121,18 @@ int Node::recvBlock(Block blk)
     int id = blk.ID();
     int pid = blk.Parent();
     if (BlockTree.find(id) != BlockTree.end()) 
-    {
-        std::cout << "Have seen block " << id << " before" << std::endl; 
         return 0;
-    }
     if (BlockTree.find(pid) == BlockTree.end()) 
-    {
-        std::cout << "Cannot identify parent " << pid << " of " << id << std::endl;
         return 0;
-    }
     BlockTree[id] = blk;
     BlockTree[id].setDepth(BlockTree[pid].Depth() + 1);
     if (BlockTree[id].Depth() > chainLen)
-    {
-        std::cout << "Length exceeded - running modify" << std::endl;
         return modifyChain(id);
-    }
     return 2;
 }
 
 Block Node::mine()
 {
-    std::cout << "Mining on " << chainLast << std::endl;
     int ntxn = std::min( (size_t)999, TxnPool.size());
     std::vector<Txn> txns;
     std::unordered_set<int>::iterator it;
@@ -166,4 +153,15 @@ Block Node::mine()
         std::advance(it, 1);
     }
     return Block(txns, chainLast, id);
+}
+
+void Node::print()
+{
+    std::ofstream ofd;
+    ofd.open(std::to_string(getID()) + "_TREE.log", std::ios::app);
+    for (auto [x,y] : BlockTree)
+    {
+        ofd << y.getArrivalTime() << " " << x << " " << y.Parent() << std::endl;
+    }
+    ofd.close();
 }

@@ -53,7 +53,7 @@ private:
     double currTime, TxnGen, blockGen;
 
 public:
-    NetSim(int numNodes, double fracSlow, double howFast, double txnparam, double blockparam);
+    NetSim(int numNodes, double fracSlow, double txnparam, double blockparam);
     double getDelay(int send, int recv, int nkbits);
     void simulate(double endTime);
 
@@ -63,6 +63,7 @@ public:
     inline double getCurrTime() { return currTime; }
     inline double getTxnGen() { return TxnGen; }
     inline int getNum() { return nNodes; }
+    void dump();
 };
 
 #endif

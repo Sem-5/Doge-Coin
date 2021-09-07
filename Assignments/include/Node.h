@@ -50,6 +50,9 @@ public:
     int recvBlock(Block blk); // Returns 0 if invalid, 1 if forms new chain, 2 if valid but not in new chain
     inline int getMineID() { return chainLast; }
     Block mine();
+
+    /* Print Tree */
+    void print();
 };
 
 #endif

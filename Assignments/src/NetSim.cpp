@@ -3,8 +3,10 @@
 #include <algorithm>
 #include <math.h>
 
-NetSim::NetSim(int numNodes, double fracSlow, double howFast, double txnparam, double blockparam) :
- nNodes(numNodes), nodes(numNodes), currTime(0.0), TxnGen(txnparam), blockGen(blockparam)
+#include <iostream> // debug
+
+NetSim::NetSim(int numNodes, double fracSlow,  double txnparam, double blockparam) :
+ nNodes(numNodes), nodes(numNodes), currTime(0.0), TxnGen(txnparam), blockGen(blockparam*numNodes)
 {
     int nSlow = fracSlow * numNodes;
     std::vector<bool> isFast(numNodes);
@@ -73,5 +75,9 @@ void NetSim::simulate(double endTime)
     for (auto it : eventQueue)
     {
         delete(it.second);
+    }
+    for (auto node : nodes)
+    {
+        node.print();
     }
 }

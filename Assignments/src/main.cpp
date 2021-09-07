@@ -2,6 +2,6 @@
 
 int main()
 {
-    NetSim ns(5, 0.25, 1.25, 1e3, 10e3);
-    ns.simulate(100e3);
+    NetSim ns(20, 0.5, 5e3, 60e3);
+    ns.simulate(600e3);
 }

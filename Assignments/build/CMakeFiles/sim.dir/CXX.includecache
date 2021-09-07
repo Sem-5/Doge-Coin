@@ -56,14 +56,6 @@ fstream
 
 ../include/getID.hpp
 
-/home/maverick/Repos/Doge-Coin/Assignments/src/Event.cpp
-NetSim.hpp
-/home/maverick/Repos/Doge-Coin/Assignments/src/NetSim.hpp
-Random.hpp
-/home/maverick/Repos/Doge-Coin/Assignments/src/Random.hpp
-iostream
--
-
 /home/maverick/Repos/Doge-Coin/Assignments/src/NetSim.cpp
 NetSim.hpp
 /home/maverick/Repos/Doge-Coin/Assignments/src/NetSim.hpp
@@ -73,13 +65,7 @@ algorithm
 -
 math.h
 -
-
-/home/maverick/Repos/Doge-Coin/Assignments/src/Node.cpp
-Node.h
-/home/maverick/Repos/Doge-Coin/Assignments/src/Node.h
 iostream
--
-stack
 -
 
 /home/maverick/Repos/Doge-Coin/Assignments/src/main.cpp
