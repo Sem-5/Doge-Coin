@@ -6,7 +6,7 @@ bool Node::modifyChain(int blkid)
 {
     int lca = blkid;
     std::stack<int> newBlocks;
-    while (BlockChain.find(blkid) == BlockChain.end())
+    while (BlockChain.find(lca) == BlockChain.end())
     {
         newBlocks.push(lca);
         lca = BlockTree[lca].Parent();
@@ -16,6 +16,8 @@ bool Node::modifyChain(int blkid)
     std::unordered_map<int, int> delUTXO;
     std::unordered_map<int, int> delInChain;
     std::unordered_map<int, int> delPool;
+
+    std::stack<int> newBlocksCopy = newBlocks;
 
     /* Revert till lca */
     int tail = chainLast;
@@ -64,6 +66,9 @@ bool Node::modifyChain(int blkid)
             TxnPool.erase(t.ID());
             delPool[t.ID()]--;
         }
+
+        if(!valid)
+            break;
     }
     
     if (!valid)
@@ -92,6 +97,18 @@ bool Node::modifyChain(int blkid)
     }
 
     /* If here, new chain is legit */
+    while(chainLast != lca)
+    {
+        BlockChain.erase(chainLast);
+        chainLast = BlockTree[chainLast].Parent();
+    }
+
+    while(!newBlocksCopy.empty())
+    {
+        BlockChain.insert(newBlocksCopy.top());
+        newBlocksCopy.pop();
+    }
+
     chainLast = blkid;
     chainLen = BlockTree[blkid].Depth();
     return 1;
