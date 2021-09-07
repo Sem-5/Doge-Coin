@@ -1,3 +1,0 @@
-/home/maverick/Repos/Doge-Coin/Assignments/build/CMakeFiles/rebuild_cache.dir
-/home/maverick/Repos/Doge-Coin/Assignments/build/CMakeFiles/edit_cache.dir
-/home/maverick/Repos/Doge-Coin/Assignments/build/CMakeFiles/sim.dir
