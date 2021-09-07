@@ -166,4 +166,31 @@ void Node::print()
             << " " << y.Txns().size() << " " << y.Miner() << std::endl;
     }
     ofd.close();
+    std::stack<std::string> chain; 
+    int tail = chainLast;
+    while(tail != -1)
+    {
+        std::string block_log = "Blk ID : " + std::to_string(BlockTree[tail].ID()) + "\n";
+        if (tail == 0)
+            block_log += "Genesis block\n";
+        else
+        {
+            block_log +=  std::to_string(BlockTree[tail].Miner()) + " mines 50 coins\n";
+            for (auto txn : BlockTree[tail].Txns())
+            {
+                block_log += "TxnID " + std::to_string(txn.ID()) + " : " +
+                            std::to_string(txn.Sender()) + " pays " + std::to_string(txn.Receiver())
+                            + " " + std::to_string(txn.Amount()) + " coins\n";
+            }
+        }
+        chain.push(block_log);
+        tail = BlockTree[tail].Parent();
+    }
+    ofd.open(std::to_string(getID()) + "_CHAIN.log", std::ios::ate);
+    while(!chain.empty())
+    {
+        ofd << chain.top() << std::endl;
+        chain.pop();
+    }
+    ofd.close();
 }
