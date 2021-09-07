@@ -161,7 +161,7 @@ void Node::print()
 {
     std::ofstream ofd;
     ofd.open(LOGDIR + std::to_string(getID()) + "_TREE.log", std::ios::ate);
-    ofd << mineSpeed << std::endl;
+    ofd << mineSpeed << " " << isFast << std::endl;
     for (auto [x,y] : BlockTree)
     {
         ofd << y.getArrivalTime() << " " << x << " " << y.Parent() 

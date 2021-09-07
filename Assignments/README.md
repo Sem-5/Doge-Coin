@@ -5,7 +5,7 @@ BlockInterval : specified for whole chain
 
 # Logs
 Each x_TREE.log file contains :
-0/1 - 1 = fast and 0 = slow 
+mining_speed(ms) 0/1(1 = fast and 0 = slow) 
 time_recv id parent_id nTxns minerID
 .
 .
