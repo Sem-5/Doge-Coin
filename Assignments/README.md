@@ -14,5 +14,18 @@ Each x_TXN.log files contains the complete blockchain with all transactions (ver
 
 Each x_CHAIN.log file contains the longest blockchain in order genesis -> latest  
 
-# Directions
-Please create a logs/ directory in your build directory!!
+# Build
+To compile input the following commands in the shell
+```console
+mkdir build
+cd build 
+cmake ..
+make
+```
+Please create a `logs/` directory in your build directory!!
+
+# Run
+Run the following command from `build/` directory 
+```console
+./sim num_nodes fraction_slow txn_gen_time blk_intervals end_time
+```
