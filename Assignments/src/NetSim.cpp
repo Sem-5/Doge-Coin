@@ -69,7 +69,7 @@ void NetSim::simulate(double endTime)
     }
     for (int i = 0; i < nNodes; ++i)
     {
-        double t = Random::exponential(getTxnGen());
+        double t = Random::exponential(nodes[i].getMineSpeed());
         addEvent(t, new BlkEvent(i, i, nodes[i].mine(), this));
     }
     while ((currTime < endTime) && (!eventQueue.empty()))
