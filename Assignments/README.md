@@ -17,15 +17,21 @@ Each x_CHAIN.log file contains the longest blockchain in order genesis -> latest
 # Directions
 To compile, follow :
 
-1. <mark>mkdir build</mark>
-2. <mark>cd build</mark>
-3. <mark>mkdir logs</mark>
-4. <mark>cmake ..</mark>
-5. <mark>make </mark>
+```console
+mkdir build
+cd build
+mkdir logs
+cmake ..
+make
+```
 
-Now you can run the sim executable  
+Now you can run the sim executable with parameters
+```console
+./sim num_nodes fraction_slow txn_gen_time blk_intervals end_time
+```
 
 To test visualization scripts, enter the visualize directory and perform
-1. <mark>mkdir logs</mkdir>
-
+```console
+mkdir logs
+```
 before running the scripts
