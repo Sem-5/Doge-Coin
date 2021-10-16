@@ -50,7 +50,7 @@ NetSim::NetSim(int numNodes, double fracSlow,  double txnparam, double blockpara
     if(advType == 0)
         return;
 
-    nodes[numNodes] = Attacker();     // to define these 2 classes
+    nodes.push_back(Attacker());     // to define these 2 classes
 
     nodes[numNodes].setID(numNodes);
     nodes[numNodes].setSpeed(true);

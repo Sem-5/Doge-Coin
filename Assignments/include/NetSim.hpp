@@ -4,6 +4,7 @@
 #include <vector>
 #include <utility>
 #include <map>
+#include <iostream> // debugging
 #include <queue>
 #include "Node.hpp"
 #include "Txn.hpp"
