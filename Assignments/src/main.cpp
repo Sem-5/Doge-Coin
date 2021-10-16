@@ -21,6 +21,6 @@ int main(int argc, char*argv[])
     std::stringstream(argv[4]) >> BlockTime;
     std::stringstream(argv[5]) >> SimulationEnd;
     
-    NetSim ns(nNodes, fracSlow, TxnTime, BlockTime);
+    NetSim ns(nNodes, 0.5, TxnTime, BlockTime, 1, fracSlow);
     ns.simulate(SimulationEnd);
 }

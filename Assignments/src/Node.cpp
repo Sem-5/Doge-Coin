@@ -117,7 +117,7 @@ bool Node::modifyChain(int blkid)
     return 1;
 }
 
-int Node::recvBlock(Block blk)
+int HonestMiner::recvBlock(Block blk)
 {
     TransmitID.insert(blk.ID());
     int id = blk.ID();
@@ -207,4 +207,82 @@ void Node::print()
         chainID.pop();
     }
     ofd.close();
+}
+
+void Attacker::extendChain(Block blk)
+{
+    privateChain.push_back(blk);
+    lead++;
+    parentID = blk.ID();
+}
+
+int SelfishMiner::recvBlock(Block blk)
+{
+    TransmitID.insert(blk.ID());
+    int id = blk.ID();
+    int pid = blk.Parent();
+    if (BlockTree.find(id) != BlockTree.end()) 
+        return 0;
+    if (BlockTree.find(pid) == BlockTree.end()) 
+        return 0;
+    BlockTree[id] = blk;
+    BlockTree[id].setDepth(BlockTree[pid].Depth() + 1);
+    int ret = 0;
+    if (BlockTree[id].Depth() > chainLen)
+        ret = modifyChain(id);
+
+    if (blk.Miner() == id)      //  attackers own block
+        return 2;
+
+    if ( ret != 1 )     // dont bother forwarding or anything if invalid or not in new chain
+        return 0;
+
+    if ( lead == 0 )
+    {
+        race = false;
+        parentID = chainLast;
+        return 3;
+    }
+
+    lead--;
+    if(lead == 0)
+    {   
+        race = true;
+        return 4;
+    }
+    else if ( lead == 1 )
+        return 5;
+    else 
+        return 4;
+}
+
+int StubbornMiner::recvBlock(Block blk)
+{
+    TransmitID.insert(blk.ID());
+    int id = blk.ID();
+    int pid = blk.Parent();
+    if (BlockTree.find(id) != BlockTree.end()) 
+        return 0;
+    if (BlockTree.find(pid) == BlockTree.end()) 
+        return 0;
+    BlockTree[id] = blk;
+    BlockTree[id].setDepth(BlockTree[pid].Depth() + 1);
+    int ret = 0;
+    if (BlockTree[id].Depth() > chainLen)
+        ret = modifyChain(id);
+
+    if (blk.Miner() == id)      //  attackers own block
+        return 2;
+
+    if ( ret != 1 )     // dont bother forwarding or anything if invalid or not in new chain
+        return 0;
+
+    if ( lead == 0 )
+    {
+        parentID = chainLast;
+        return 3;
+    }
+
+    lead--;
+    return 4;
 }
