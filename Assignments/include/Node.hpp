@@ -40,6 +40,7 @@ public:
     inline void setMineSpeed(double ms) { mineSpeed = ms; }
     inline void addPeer(int peer) { peerID.push_back(peer); }
     inline const std::vector<int> & getPeers() const { return peerID; }
+    inline void incrCount() { nMined++; }
     void addTxn (Txn txn) 
     { 
         TransmitID.insert(txn.ID());

@@ -219,7 +219,7 @@ void Attacker::print()
         ofd << privateChain.front().Parent();
         for (auto x : privateChain)
         {
-            ofd << " <- " << x.ID();
+            ofd << " " << x.ID();
         }
     }
     ofd << "\n";

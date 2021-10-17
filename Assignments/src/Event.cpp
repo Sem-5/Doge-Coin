@@ -134,6 +134,7 @@ void PrivBlkEvent::run()
 
     // mine for next block 
     double t = simulator->getCurrTime() + Random::exponential(rNode->getMineSpeed());
+    rNode->incrCount();
     simulator->addEvent(t, new PrivBlkEvent(recv, recv, Block( std::vector<Txn>(), rNode->getMineID(), recv ), simulator));  
 }
 
