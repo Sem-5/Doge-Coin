@@ -130,11 +130,11 @@ void NetSim::simulate(double endTime)
     {
         delete(it.second);
     }
+    std::cout << std::endl;
     /* Node Logging */
     for (auto node : nodes)
     {
         node->print();
         delete(node);
     }
-    std::cout << std::endl;
 }

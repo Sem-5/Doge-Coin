@@ -54,7 +54,7 @@ public:
     Block mine();
 
     /* Print Tree */
-    void print();
+    virtual void print();
 
     /* Virtual functions, (is there something better??) */
     virtual int recvBlock(Block blk) { throw std::runtime_error("recvBlock : this should never happen"); return 0; };
@@ -98,6 +98,7 @@ public:
     inline bool getRace() { return race; }
     inline void setLead() { lead = 1; }
     inline void updateRace(int parentID) {parentID = parentID; race = false;}
+    void print();
 
     inline Block getBlock() { Block block = privateChain.front(); privateChain.pop_front(); return block; }
     inline std::list<Block> getChain() { std::list<Block> temp = privateChain; privateChain = std::list<Block>(); return temp; }

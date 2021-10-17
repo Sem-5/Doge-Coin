@@ -209,6 +209,23 @@ void Node::print()
     ofd.close();
 }
 
+void Attacker::print()
+{
+    Node::print();
+    std::ofstream ofd;
+    ofd.open(LOGDIR + std::to_string(getID()) + "_PCHAIN.log", std::ios::ate);
+    if(!privateChain.empty())
+    {
+        ofd << privateChain.front().Parent();
+        for (auto x : privateChain)
+        {
+            ofd << " <- " << x.ID();
+        }
+    }
+    ofd << "\n";
+    ofd.close();
+}
+
 void Attacker::extendChain(Block blk)
 {
     privateChain.push_back(blk);
