@@ -72,7 +72,7 @@ class NetSim
 private:
     int honNodes;
     int nNodes;
-    std::vector<Node> nodes;
+    std::vector<Node*> nodes;
     std::map<pii, double> solDelay;
     std::multimap<double, Event*> eventQueue;
     double currTime, TxnGen, blockGen;
@@ -86,12 +86,12 @@ public:
         advType : 0 no adversary, 1 selfish miner, 2 stubborn miner 
         fracAdvConn : fraction of honest miners connected to adversary
     */
-    NetSim(int numNodes, double fracSlow, double txnparam, double blockparam, int advType, double fracAdvConn);
+    NetSim(int numNodes, double fracSlow, double txnparam, double blockparam, int advType, double fracAdvConn, double advparam);
     double getDelay(int send, int recv, int nkbits);
     void simulate(double endTime);
 
     /* Helpers */
-    inline Node& getNodeRef(int index) { return nodes[index]; }
+    inline Node* getNodeRef(int index) { return nodes[index]; }
     inline void addEvent(double t,Event *e) { eventQueue.insert( std::make_pair(t,e) ); }
     inline double getCurrTime() { return currTime; }
     inline double getTxnGen() { return TxnGen; }

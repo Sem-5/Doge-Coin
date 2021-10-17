@@ -57,14 +57,14 @@ public:
     void print();
 
     /* Virtual functions, (is there something better??) */
-    virtual int recvBlock(Block blk) {};
-    virtual int getMineID() {};
-    virtual bool getRace() {};
-    virtual void setLead() {};
-    virtual void updateRace(int parentID) {};
-    virtual Block getBlock() {};
-    virtual std::list<Block> getChain() {};
-    virtual void extendChain(Block blk) {};
+    virtual int recvBlock(Block blk) { throw std::runtime_error("recvBlock : this should never happen"); return 0; };
+    virtual int getMineID() { throw std::runtime_error("getMineID : this should never happen"); return 0; };
+    virtual bool getRace() { throw std::runtime_error("getRace : this should never happen"); return 0; };
+    virtual void setLead() { throw std::runtime_error("setLead : this should never happen"); };
+    virtual void updateRace(int parentID) { throw std::runtime_error("updateRace : this should never happen");};
+    virtual Block getBlock() { throw std::runtime_error("getBlock : this should never happen"); return Block(); };
+    virtual std::list<Block> getChain() { throw std::runtime_error("getChain : this should never happen"); return std::list<Block>(); };
+    virtual void extendChain(Block blk) { throw std::runtime_error("extendChain : this should never happen"); };
 };
 
 class HonestMiner : public Node
@@ -91,7 +91,7 @@ protected:
     bool race;          // in race condition, aka state 0'
     int parentID;         // parent in private chain
 public:
-    virtual int recvBlock(Block blk) {};   // 0 if invalid, 3 if no 
+    virtual int recvBlock(Block blk) { throw std::runtime_error("Attacker::recvBlock : this should never happen"); return 0; };   // 0 if invalid, 3 if no 
 
     Attacker() : Node(), lead(0), race(false), parentID(0) {};
     inline int getMineID() { return parentID; }
