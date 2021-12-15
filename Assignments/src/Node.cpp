@@ -1,4 +1,4 @@
-#include "Node.h"
+#include "Node.hpp"
 #include <stack>
 
 #define LOGDIR std::string("logs/")
@@ -117,7 +117,7 @@ bool Node::modifyChain(int blkid)
     return 1;
 }
 
-int Node::recvBlock(Block blk)
+int HonestMiner::recvBlock(Block blk)
 {
     TransmitID.insert(blk.ID());
     int id = blk.ID();
@@ -135,6 +135,8 @@ int Node::recvBlock(Block blk)
 
 Block Node::mine()
 {
+    nMined++;
+    /* Picks max possible transactions from pool and tries to create meaningful block with them */
     int ntxn = std::min( (size_t)999, TxnPool.size());
     std::vector<Txn> txns;
     std::unordered_set<int>::iterator it;
@@ -157,11 +159,12 @@ Block Node::mine()
     return Block(txns, chainLast, id);
 }
 
+/* Logger functin. Read README for details. */
 void Node::print()
 {
     std::ofstream ofd;
     ofd.open(LOGDIR + std::to_string(getID()) + "_TREE.log", std::ios::ate);
-    ofd << mineSpeed << std::endl;
+    ofd << mineSpeed << " " << isFast << " " << nMined << std::endl;
     for (auto [x,y] : BlockTree)
     {
         ofd << y.getArrivalTime() << " " << x << " " << y.Parent() 
@@ -200,8 +203,103 @@ void Node::print()
     ofd.open(LOGDIR + std::to_string(getID()) + "_CHAIN.log", std::ios::ate);
     while(!chainID.empty())
     {
-        ofd << chainID.top() << std::endl;
+        ofd << chainID.top() << " " << BlockTree[chainID.top()].Miner() << std::endl;
         chainID.pop();
     }
     ofd.close();
+}
+
+void Attacker::print()
+{
+    Node::print();
+    std::ofstream ofd;
+    ofd.open(LOGDIR + std::to_string(getID()) + "_PCHAIN.log", std::ios::ate);
+    if(!privateChain.empty())
+    {
+        ofd << privateChain.front().Parent();
+        for (auto x : privateChain)
+        {
+            ofd << " " << x.ID();
+        }
+    }
+    ofd << "\n";
+    ofd.close();
+}
+
+void Attacker::extendChain(Block blk)
+{
+    privateChain.push_back(blk);
+    lead++;
+    parentID = blk.ID();
+}
+
+int SelfishMiner::recvBlock(Block blk)
+{
+    TransmitID.insert(blk.ID());
+    int id = blk.ID();
+    int pid = blk.Parent();
+    if (BlockTree.find(id) != BlockTree.end()) 
+        return 0;
+    if (BlockTree.find(pid) == BlockTree.end()) 
+        return 0;
+    BlockTree[id] = blk;
+    BlockTree[id].setDepth(BlockTree[pid].Depth() + 1);
+    int ret = 0;
+    if (BlockTree[id].Depth() > chainLen)
+        ret = modifyChain(id);
+
+    if (blk.Miner() == id)      //  attackers own block
+        return 2;
+
+    if ( ret != 1 )     // dont bother forwarding or anything if invalid or not in new chain
+        return 0;
+
+    if ( lead == 0 )
+    {
+        race = false;
+        parentID = chainLast;
+        return 3;
+    }
+
+    lead--;
+    if(lead == 0)
+    {   
+        race = true;
+        return 4;
+    }
+    else if ( lead == 1 )
+        return 5;
+    else 
+        return 4;
+}
+
+int StubbornMiner::recvBlock(Block blk)
+{
+    TransmitID.insert(blk.ID());
+    int id = blk.ID();
+    int pid = blk.Parent();
+    if (BlockTree.find(id) != BlockTree.end()) 
+        return 0;
+    if (BlockTree.find(pid) == BlockTree.end()) 
+        return 0;
+    BlockTree[id] = blk;
+    BlockTree[id].setDepth(BlockTree[pid].Depth() + 1);
+    int ret = 0;
+    if (BlockTree[id].Depth() > chainLen)
+        ret = modifyChain(id);
+
+    if (blk.Miner() == id)      //  attackers own block
+        return 2;
+
+    if ( ret != 1 )     // dont bother forwarding or anything if invalid or not in new chain
+        return 0;
+
+    if ( lead == 0 )
+    {
+        parentID = chainLast;
+        return 3;
+    }
+
+    lead--;
+    return 4;
 }

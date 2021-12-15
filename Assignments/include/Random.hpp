@@ -4,13 +4,14 @@
 #include <random>
 #include <algorithm>
 
+/* Non Instantiable static class for Random Distributions */
 class Random
 {
 private:
     Random() {}
 
 public:
-    static inline double unif_real(int a, int b)
+    static inline double unif_real(double a, double b)
     {
         static std::random_device rd;
         std::mt19937 gen(rd());
@@ -48,16 +49,6 @@ public:
         std::vector<int> samples;
         std::sample(data.begin(), data.end(), std::back_inserter(samples), count, gen);
         return samples;
-    }
-    static inline double posGaussian(double mean, double stdDev)
-    {
-        double sample;
-        do {
-            static std::random_device rd;
-            std::mt19937 gen(rd());
-            sample = std::normal_distribution<double>(mean, stdDev)(gen);
-        } while(sample <= 0);
-        return sample;
     }
 };
 
